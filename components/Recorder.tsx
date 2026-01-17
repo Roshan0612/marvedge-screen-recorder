@@ -2,6 +2,7 @@
 
 import { useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { useEffect } from 'react'
 
 export default function Recorder() {
   const mediaRecorderRef = useRef<MediaRecorder | null>(null)
@@ -10,13 +11,14 @@ export default function Recorder() {
 
   const [isRecording, setIsRecording] = useState(false)
   const [videoUrl, setVideoUrl] = useState<string | null>(null)
+  const [hasRecorded, setHasRecorded] = useState(false)
   const [startTime, setStartTime] = useState(0)
   const [endTime, setEndTime] = useState<number | null>(null)
   const [isTrimming, setIsTrimming] = useState(false)
   const [isUploading, setIsUploading] = useState(false)
   const [shareUrl, setShareUrl] = useState<string | null>(null)
   const router = useRouter()
-
+  
 
   const startRecording = async () => {
     try {
@@ -56,6 +58,7 @@ export default function Recorder() {
 
         const url = URL.createObjectURL(blob)
         setVideoUrl(url)
+        setHasRecorded(true)
       }
 
       mediaRecorder.start()
@@ -102,6 +105,10 @@ const handleTrim = async () => {
   }
 }
 
+
+
+
+
   const handleUpload = async () => {
     if (!videoUrl) return
 
@@ -139,9 +146,9 @@ const handleTrim = async () => {
 
 
   return (
-    <div className="space-y-4">
-      <div className="flex gap-3">
-        {!isRecording ? (
+    <div className="record-page space-y-4">
+      <div className="recorder-controls flex gap-3">
+        {!isRecording && !hasRecorded ? (
           <button
             onClick={startRecording}
             disabled={isTrimming || isUploading}
@@ -149,7 +156,7 @@ const handleTrim = async () => {
           >
             Start Recording
           </button>
-        ) : (
+        ) : isRecording ? (
           <button
             onClick={stopRecording}
             disabled={isTrimming || isUploading}
@@ -157,7 +164,7 @@ const handleTrim = async () => {
           >
             Stop Recording
           </button>
-        )}
+        ) : null}
       </div>
 
       {/* Minimal status text */}
@@ -169,15 +176,20 @@ const handleTrim = async () => {
 
       {videoUrl && (
         <div className="space-y-2">
-          <video
-            src={videoUrl}
-            controls
-            className="w-full rounded border"
-            onLoadedMetadata={(e) => {
-            const duration = e.currentTarget.duration
-            setEndTime(Math.floor(duration))
-            }}
-          />
+          <div className="video-wrap">
+            {videoUrl && (
+  <video
+    src={videoUrl}
+    controls
+    className="rounded border"
+    onLoadedMetadata={(e) => {
+      const duration = e.currentTarget.duration
+      setEndTime(Math.floor(duration))
+    }}
+  />
+)}
+
+          </div>
 
           <a
             href={videoUrl}

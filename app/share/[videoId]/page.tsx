@@ -38,20 +38,25 @@ export default async function Page({ params }: { params: { videoId: string } | P
 
   const videoUrl = `/api/uploads/${videoId}`
 
+
   return (
-    <main style={{ padding: 20, fontFamily: 'system-ui, sans-serif' }}>
-      <h1 style={{ fontSize: 18, marginBottom: 12 }}>Shared Recording</h1>
-      <div>
-        <video id="player" src={videoUrl} controls style={{ width: '100%', maxWidth: 800 }} />
+    <div className="prose">
+      <h1 className="text-xl font-semibold mb-4">Shared Recording</h1>
+      <div className="mb-4">
+        <video id="player" src={videoUrl} controls className="w-full max-w-3xl" />
       </div>
 
-      <div id="meta" style={{ marginTop: 12 }}>
-        <div>Views: <span id="views">{meta.views}</span></div>
+      <div id="meta" className="text-sm text-gray-700">
+        <div className="mb-1">Views: <span id="views">{meta.views}</span></div>
         <div>Completion: <span id="completion">{computeCompletion(meta)}</span>%</div>
       </div>
 
+      <div className="mt-4">
+        <a href="/" className="text-blue-600">Back</a>
+      </div>
+
       <script dangerouslySetInnerHTML={{ __html: clientScript(videoId, meta.duration ?? null) }} />
-    </main>
+    </div>
   )
 }
 
@@ -64,7 +69,7 @@ function computeCompletion(meta: Meta) {
 function clientScript(videoId: string, duration: number | null) {
   // Minimal client-side script (no framework) to track watch progress.
   // Sends watchedSeconds to the analytics API and updates the completion UI.
-  return `
+  return `  
     (function(){
       const player = document.getElementById('player')
       const viewsEl = document.getElementById('views')

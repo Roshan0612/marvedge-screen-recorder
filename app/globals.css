@@ -24,3 +24,116 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* Minimal button styling and centering for recorder controls */
+.recorder-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.75rem;
+  /* Make the controls vertically prominent and centered in the viewport */
+  min-height: 50vh;
+}
+
+.recorder-controls button,
+button {
+  padding: 0.5rem 0.9rem;
+  border-radius: 0.375rem;
+  border: none;
+  cursor: pointer;
+}
+
+button[disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Primary color for action buttons */
+button.bg-blue-600,
+button[aria-role="primary"] {
+  background-color: #2563eb;
+  color: #ffffff;
+}
+
+button.bg-green-600 {
+  background-color: #16a34a;
+  color: #ffffff;
+}
+
+/* Record page card + controls */
+.record-page {
+  max-width: 760px;
+  margin: 2.25rem auto;
+  padding: 1.25rem;
+  background: rgba(255,255,255,0.02);
+  border-radius: 0.5rem;
+  border: 1px solid rgba(0,0,0,0.06);
+  box-shadow: 0 6px 18px rgba(10,10,10,0.06);
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  align-items: stretch;
+}
+
+.record-page .recorder-controls {
+  justify-content: center;
+  min-height: auto; /* no huge vertical gap inside the card */
+  padding-top: 0.25rem;
+  padding-bottom: 0.25rem;
+}
+
+.record-page video {
+  max-width: 100%;
+  height: auto;
+  border-radius: 0.5rem;
+  border: 1px solid rgba(0,0,0,0.06);
+  box-shadow: 0 4px 14px rgba(10,10,10,0.05);
+  display: block;
+  margin: 0 auto;
+  background: #000;
+  object-fit: contain;
+  max-height: 60vh;
+}
+
+/* Wrapper to center the video element vertically/horizontally */
+.video-wrap {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+.record-page label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.95rem;
+}
+
+.record-page input[type="number"] {
+  padding: 0.35rem 0.5rem;
+  border-radius: 0.35rem;
+  border: 1px solid rgba(0,0,0,0.12);
+}
+
+.record-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.btn {
+  padding: 0.5rem 0.9rem;
+  border-radius: 0.375rem;
+  border: none;
+  cursor: pointer;
+}
+
+.btn-primary { background-color: #2563eb; color: #fff }
+.btn-danger { background-color: #dc2626; color: #fff }
+.btn-success { background-color: #16a34a; color: #fff }
+
+@media (max-width: 640px) {
+  .record-page { margin: 1rem; padding: 0.9rem }
+}

@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { writeFile, mkdir } from 'fs/promises'
 import path from 'path'
 import { randomUUID } from 'crypto'
+import { PutObjectCommand } from "@aws-sdk/client-s3"
+import { s3 } from "@/lib/s3"
 
 export const runtime = 'nodejs'
 
@@ -17,21 +19,28 @@ export async function POST(req: NextRequest) {
     }
 
     const duration = durationRaw != null ? Number(String(durationRaw)) : undefined
-
     const videoId = randomUUID()
 
-    const uploadsDir = path.join(process.cwd(), 'uploads')
-    const dataDir = path.join(process.cwd(), 'data')
-    await mkdir(uploadsDir, { recursive: true })
-    await mkdir(dataDir, { recursive: true })
-
-    const uploadPath = path.join(uploadsDir, `${videoId}.webm`)
-
+    // Upload to S3
     const buffer = Buffer.from(await (file as any).arrayBuffer())
-    await writeFile(uploadPath, buffer)
+    const s3Key = `recordings/${videoId}.webm`
+
+    await s3.send(
+      new PutObjectCommand({
+        Bucket: process.env.AWS_S3_BUCKET_NAME!,
+        Key: s3Key,
+        Body: buffer,
+        ContentType: 'video/webm',
+      })
+    )
+
+    // Metadata (local – acceptable for MVP)
+    const dataDir = path.join(process.cwd(), 'data')
+    await mkdir(dataDir, { recursive: true })
 
     const meta = {
       videoId,
+      s3Key,
       createdAt: new Date().toISOString(),
       views: 0,
       duration: Number.isFinite(duration) ? duration : null,
