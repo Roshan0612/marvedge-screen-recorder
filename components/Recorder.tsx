@@ -178,15 +178,15 @@ const handleTrim = async () => {
         <div className="space-y-2">
           <div className="video-wrap">
             {videoUrl && (
-  <video
-    src={videoUrl}
-    controls
-    className="rounded border"
-    onLoadedMetadata={(e) => {
-      const duration = e.currentTarget.duration
-      setEndTime(Math.floor(duration))
-    }}
-  />
+            <video
+              src={videoUrl}
+              controls
+              className={`rounded border ${isRecording ? 'live-preview' : ''}`}
+              onLoadedMetadata={(e) => {
+                const duration = e.currentTarget.duration
+                setEndTime(Math.floor(duration))
+              }}
+            />
 )}
 
           </div>

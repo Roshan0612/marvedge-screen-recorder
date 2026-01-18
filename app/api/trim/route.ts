@@ -4,7 +4,8 @@ import { spawn } from 'child_process'
 import path from 'path'
 import { randomUUID } from 'crypto'
 
-const FFMPEG_PATH = process.env.FFMPEG_PATH || '/usr/bin/ffmpeg'
+// Prefer an explicit env var, but fall back to `ffmpeg` so systems with ffmpeg on PATH work (Windows/Unix)
+const FFMPEG_PATH = process.env.FFMPEG_PATH || 'ffmpeg'
 
 export const runtime = 'nodejs'
 
@@ -104,8 +105,12 @@ export async function POST(req: NextRequest) {
         console.warn('Failed to remove output temp file', outputPath, e)
       }
     }
-  } catch (err) {
-    console.error(err)
-    return NextResponse.json({ error: 'Video processing failed' }, { status: 500 })
+  } catch (err: any) {
+    console.error('Trim handler error', err)
+    const details = typeof err?.message === 'string' ? err.message : String(err)
+    const suggestion = err && (err.code === 'ENOENT' || String(details).includes('spawn') && String(details).includes('ENOENT'))
+      ? 'ffmpeg not found. Install ffmpeg or set the FFMPEG_PATH env var to the ffmpeg executable.'
+      : undefined
+    return NextResponse.json({ error: 'Video processing failed', details: details.slice?.(0, 2000), suggestion }, { status: 500 })
   }
 }

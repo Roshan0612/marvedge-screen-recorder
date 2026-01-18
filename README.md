@@ -95,12 +95,37 @@ Architecture Decisions
 
 What I would improve for production
 ----------------------------------
-- Move uploads to durable object storage (S3, R2) to scale and offload storage.
-- Use a real database for metadata and analytics to support queries and concurrency.
-- Add authentication and access control for uploads and share links.
-- Stream video content (range requests) rather than reading full files into memory.
-- Offload heavy processing (FFmpeg) to background workers or serverless functions and add retries and observability.
-- Harden uploads: size limits, virus scanning, rate limiting, and signed upload URLs.
+CloudFront in front of S3
+
+Faster global video delivery
+
+Reduced S3 costs
+
+Multipart & resumable uploads
+
+Reliable uploads for long recordings
+
+Better UX on unstable networks
+
+Persistent metadata store
+
+PostgreSQL or DynamoDB instead of local files
+
+Authentication & ownership
+
+Only creators can delete or manage recordings
+
+Rate limiting & abuse protection
+
+Prevent upload flooding
+
+Background processing
+
+Transcoding, thumbnails, duration validation
+
+Lifecycle rules
+
+Auto-delete old recordings to control storage cost
 
 Demo evidence
 -------------

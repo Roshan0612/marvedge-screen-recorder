@@ -95,6 +95,29 @@ button.bg-green-600 {
   max-height: 60vh;
 }
 
+/* Full viewport live preview when recording the shared window */
+.record-page video.live-preview {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  max-height: none;
+  border-radius: 0;
+  border: none;
+  z-index: 1000;
+  /* Use `contain` so the entire shared window is visible (letterboxed when aspect differs) */
+  object-fit: contain;
+  background: #000;
+  display: block;
+}
+
+/* Ensure controls and status are visible above the preview */
+.record-page .recorder-controls,
+.record-page .record-actions,
+.record-page .record-status {
+  z-index: 1001;
+}
+
 /* Wrapper to center the video element vertically/horizontally */
 .video-wrap {
   display: flex;
