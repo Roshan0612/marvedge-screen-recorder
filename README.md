@@ -127,12 +127,6 @@ Lifecycle rules
 
 Auto-delete old recordings to control storage cost
 
-Demo evidence
--------------
-Provide one of the following when submitting the assignment:
 
-- A live demo URL where the full flow (record → trim → upload → share) can be exercised.
-
-- OR a 2–3 minute screen recording demonstrating the flow: record a short screen capture, trim to a segment, upload the trimmed file, open the share link, and show views/completion updating. An MP4 or WebM file is acceptable.
 
 
