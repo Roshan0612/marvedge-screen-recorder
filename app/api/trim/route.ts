@@ -4,7 +4,7 @@ import { spawn } from 'child_process'
 import path from 'path'
 import { randomUUID } from 'crypto'
 
-const FFMPEG_PATH = 'C:\\ffmpeg\\bin\\ffmpeg.exe'
+const FFMPEG_PATH = process.env.FFMPEG_PATH || '/usr/bin/ffmpeg'
 
 export const runtime = 'nodejs'
 

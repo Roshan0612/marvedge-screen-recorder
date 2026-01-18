@@ -26,7 +26,6 @@ export async function GET(
       Key: key,
     })
 
-    // Signed URL valid for 5 minutes
     const signedUrl = await getSignedUrl(s3, command, {
       expiresIn: 300,
     })

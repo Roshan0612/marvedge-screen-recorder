@@ -21,7 +21,7 @@ export async function POST(req: NextRequest) {
     const duration = durationRaw != null ? Number(String(durationRaw)) : undefined
     const videoId = randomUUID()
 
-    // Upload to S3
+    
     const buffer = Buffer.from(await (file as any).arrayBuffer())
     const s3Key = `recordings/${videoId}.webm`
 
@@ -34,7 +34,7 @@ export async function POST(req: NextRequest) {
       })
     )
 
-    // Metadata (local – acceptable for MVP)
+    
     const dataDir = path.join(process.cwd(), 'data')
     await mkdir(dataDir, { recursive: true })
 
