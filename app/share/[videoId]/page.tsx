@@ -46,7 +46,9 @@ export default function Page() {
       setUseProxy(true)
     }
     function onLoaded() {
-      if (v.duration === 0 || Number.isNaN(v.duration)) setUseProxy(true)
+      const cur = videoRef.current
+      if (!cur) return
+      if (cur.duration === 0 || Number.isNaN(cur.duration)) setUseProxy(true)
     }
     function onPlay() {
       if (didCountView) return
