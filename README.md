@@ -1,132 +1,94 @@
+# Marvedge
 
-MarvEdge — Screen Recorder
-===========================
+Marvedge is a browser-based screen recorder for explaining technical work with a focused, shareable video workflow.
 
-Status: Work in progress — initial recording UI and basic server pieces implemented.
+## Features
 
-What’s implemented
-- `Recorder` component: UI and logic to capture screen and record video clips.
-- `VideoPlayer` component: plays recorded videos in the app.
-- Pages: `record/page.tsx` and `record/share/page.tsx` provide the recording flow and sharing UI.
-- API route: `app/api/trim/route.ts` — endpoint scaffold for trimming/processing uploaded video segments.
-- Basic wiring and routes for a Next.js  app using the App Router.
+- Capture display video and microphone audio with the browser MediaRecorder API.
+- Preview recordings locally in the browser.
+- Trim clips by choosing start and end timestamps.
+- Re-encode trimmed WebM video with FFmpeg for reliable cuts.
+- Upload recordings to an S3-compatible bucket.
+- Share recordings through generated links and track views on the share page.
 
-Key files
-- `components/Recorder.tsx` — screen capture and MediaRecorder integration.
-- `components/VideoPlayer.tsx` — playback UI for recorded blobs.
-- `app/api/trim/route.ts` — server route for trimming video (uses ffmpeg on the server-side when available).
-- `record/page.tsx`, `record/share/page.tsx` — pages for recording and sharing flows.
+## Tech Stack
 
-Setup
+- Next.js 16 with the App Router
+- React 19
+- TypeScript
+- Tailwind CSS 4 and PostCSS
+- Browser MediaRecorder and Media Capture APIs
+- AWS SDK for JavaScript v3 and Amazon S3-compatible storage
+- Node.js runtime for filesystem and FFmpeg processing
 
-1. Install dependencies:
+## Screenshots
 
-```bash
-npm install
-```
+Screenshots can be added here as the product evolves.
 
-2. Add runtime dependency: `ffmpeg` must be installed on your system for server-side trimming to work. On Windows, ensure `ffmpeg` is on `PATH`.
+## Getting Started
 
-3. (Optional) UUID types were added during development: `uuid` and `@types/uuid`.
+### Prerequisites
 
-Run
+- Node.js 18 or later
+- FFmpeg installed and available on `PATH` for trimming
+- An S3-compatible bucket and credentials for upload and playback
 
-```bash
-npm run dev
-```
-
-Notes & Next steps
-- The core recording UI and playback are present, but several pieces remain:
-	- Complete server-side trimming implementation and ensure `ffmpeg` calls succeed.
-	- Persist recordings (upload to storage / save to disk) and implement sharing links.
-	- Add tests and CI configuration.
-	- Polish UX for long recordings, error states, and permission flows.
-
-Video Trimming Implementation
------------------------------
-
-Overview
-- Server-side trimming is implemented using FFmpeg in the Next.js App Router application to provide accurate, reliable, and deterministic trimming based on user-specified start and end timestamps.
-
-What was implemented
-- Removed any demo or hardcoded trimming behavior (for example: trimming the first five seconds).
-- Trimming is driven exclusively by user-provided `start` and `end` timestamps supplied by the UI.
-- Uploaded video files are written to a `tmp` directory on the server for processing.
-- FFmpeg is executed via `child_process.spawn` using an absolute Windows path constant (`C:\\ffmpeg\\bin\\ffmpeg.exe`). The binary path is stored as a string constant and not imported as a module.
-- The server re-encodes video and audio (video: VP8 / `libvpx`; audio: Opus / `libopus`) to guarantee frame-accurate trimming and maintain audio–video synchronization.
-- The API performs strict validation of inputs (`file`, `start`, `end`) and returns clear error responses for invalid requests.
-- Temporary files are always removed in a `finally` block to avoid leftover files when processing succeeds or fails.
-- The route is configured to run in the Node.js runtime (`export const runtime = 'nodejs'`) so filesystem and process spawn operations are available.
-
-Why this approach was used
-- Re-encoding (rather than stream-copy with `-c copy`) provides frame-accurate and deterministic trimming regardless of keyframe placement.
-- Using `spawn` with an argument array avoids shell interpolation, prevents bundler resolution of the binary, and reduces shell-injection risk.
-- Storing the FFmpeg path as a string constant and invoking the binary at runtime ensures platform-appropriate behavior on Windows and keeps build-time tooling from attempting to bundle or resolve native binaries.
-- The implementation preserves the existing UI and API contract while meeting the assignment requirement for precise trimming.
-
-Assignment compliance
-- The trimming pipeline is deterministic, frame-accurate, secure, and compatible with the Next.js App Router on Windows.
-- The solution validates inputs, re-encodes media for precise cuts, captures FFmpeg diagnostics internally, and guarantees cleanup of temporary files.
-- This implementation satisfies the assignment requirements for accurate, server-side trimming based on user-specified timestamps.
-
-Setup Instructions
-------------------
-- Node.js: 18.x or later is recommended.
-- Install dependencies:
+### Install and run
 
 ```bash
 npm install
-```
-
-- Run the dev server:
-
-```bash
 npm run dev
 ```
 
-- FFmpeg: A system FFmpeg installation is required for server-side trimming. On Windows, install FFmpeg and make note of the binary path. The implementation uses the absolute Windows path constant `C:\\ffmpeg\\bin\\ffmpeg.exe` (ensure `ffmpeg.exe` exists at that location or update the path in `app/api/trim/route.ts`).
+Open [http://localhost:3000](http://localhost:3000) in a browser that supports screen capture. Use `npm run build` to create a production build and `npm start` to serve it.
 
-Architecture Decisions
-----------------------
-- MediaRecorder API (client): Recording uses the browser-native MediaRecorder API to capture display and microphone streams without external libraries. This keeps the client simple and browser-compatible.
-- Server-side FFmpeg: Trimming is performed on the server with FFmpeg to guarantee frame-accurate, deterministic cuts independent of keyframe placement. Re-encoding ensures precise start/end times and preserves A/V sync.
-- File-based storage (uploads/ and data/): For the assignment, local filesystem persistence is used as a simple, testable storage layer. This avoids introducing external services and keeps the project self-contained.
-- Next.js App Router + Node runtime: API routes that perform filesystem access and spawn processes explicitly set `export const runtime = 'nodejs'` so they run in Node rather than the Edge runtime.
+## Environment Variables
 
-What I would improve for production
-----------------------------------
-CloudFront in front of S3
+Create a `.env.local` file with the storage configuration used by the API routes:
 
-Faster global video delivery
+```bash
+AWS_REGION=
+AWS_ACCESS_KEY_ID=
+AWS_SECRET_ACCESS_KEY=
+AWS_S3_BUCKET_NAME=
+FFMPEG_PATH=ffmpeg
+```
 
-Reduced S3 costs
+Do not commit real credentials. `FFMPEG_PATH` is optional when `ffmpeg` is already on `PATH`; it can point to an absolute executable path when needed.
 
-Multipart & resumable uploads
+## Project Structure
 
-Reliable uploads for long recordings
+```text
+app/
+  api/              Upload, trim, playback, and analytics route handlers
+  record/           Recording page
+  share/[videoId]/  Shared recording playback and view count
+  page.tsx          Home page
+components/
+  Recorder.tsx      Browser capture, preview, trim, and upload UI
+lib/
+  s3.ts             S3 client and signed URL helper
+data/               Recording metadata stored by the application
+uploads/            Local application upload workspace
+tmp/                Temporary files used during FFmpeg processing
+```
 
-Better UX on unstable networks
+## How It Works
 
-Persistent metadata store
+The recording page requests display video and microphone access, combines their tracks, and records them as WebM in the browser. A recorded clip can be previewed and sent to `/api/trim`, where FFmpeg processes the requested time range. The resulting file is uploaded to S3 through `/api/upload`, which returns a `/share/[videoId]` route. The share page loads the video through a signed URL or server proxy and records playback views through the analytics route.
 
-PostgreSQL or DynamoDB instead of local files
+## Development
 
-Authentication & ownership
+Run `npm run dev` while working locally. Use `npm run lint` for ESLint checks and `npm run build` to validate the production bundle. Browser permissions must be granted for screen and microphone capture, and FFmpeg must be available to test trimming.
 
-Only creators can delete or manage recordings
+## Deployment
 
-Rate limiting & abuse protection
+Deploy the Next.js application to a Node.js-compatible host. Configure the AWS variables in the host environment, provide FFmpeg in the runtime image or set `FFMPEG_PATH`, and ensure the process can write to the temporary and upload directories. Use an S3 bucket policy and credentials appropriate for the deployment environment.
 
-Prevent upload flooding
+## Contributing
 
-Background processing
+Keep changes focused, preserve the existing recording and API contracts, and verify lint and build checks before opening a pull request. Describe user-visible changes and include screenshots for UI updates.
 
-Transcoding, thumbnails, duration validation
+## License
 
-Lifecycle rules
-
-Auto-delete old recordings to control storage cost
-
-
-
-
+No license file is currently included in this repository.
