@@ -1,9 +1,9 @@
 "use client"
 
-import React, { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useParams } from 'next/navigation'
 
-export default function Page() {
+export default function SharePage() {
   const { videoId } = useParams() as { videoId: string }
   const [signedUrl, setSignedUrl] = useState<string | null>(null)
   const [useProxy, setUseProxy] = useState(false)
@@ -31,7 +31,7 @@ export default function Page() {
         const j = await r.json()
         if (typeof j?.views === 'number') setViews(j.views)
       } catch (e) {
-        // ignore
+        // Failed to fetch view count
       }
     }
 
@@ -60,7 +60,7 @@ export default function Page() {
           const j = await r.json()
           if (typeof j?.views === 'number') setViews(j.views)
         } catch (e) {
-          // ignore
+          // Failed to update view count
         }
       })()
     }

@@ -1,16 +1,9 @@
 import { NextResponse } from 'next/server'
-import { S3Client, GetObjectCommand } from '@aws-sdk/client-s3'
+import { GetObjectCommand } from '@aws-sdk/client-s3'
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
+import { s3 } from '@/lib/s3'
 
 export const runtime = 'nodejs'
-
-const s3 = new S3Client({
-  region: process.env.AWS_REGION!,
-  credentials: {
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
-  },
-})
 
 export async function GET(
   req: Request,
@@ -32,7 +25,6 @@ export async function GET(
 
     return NextResponse.json({ url: signedUrl })
   } catch (err) {
-    console.error('Failed to generate signed URL', err)
     return NextResponse.json({ error: 'Not found' }, { status: 404 })
   }
 }

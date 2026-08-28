@@ -2,7 +2,6 @@
 
 import { useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { useEffect } from 'react'
 
 export default function Recorder() {
   const mediaRecorderRef = useRef<MediaRecorder | null>(null)
@@ -16,9 +15,7 @@ export default function Recorder() {
   const [endTime, setEndTime] = useState<number | null>(null)
   const [isTrimming, setIsTrimming] = useState(false)
   const [isUploading, setIsUploading] = useState(false)
-  const [shareUrl, setShareUrl] = useState<string | null>(null)
   const router = useRouter()
-  
 
   const startRecording = async () => {
     try {
@@ -74,7 +71,8 @@ export default function Recorder() {
     streamRef.current?.getTracks().forEach((track) => track.stop())
     setIsRecording(false)
   }
-const handleTrim = async () => {
+
+  const handleTrim = async () => {
   if (!videoUrl || endTime === null) return
 
   setIsTrimming(true)
@@ -103,11 +101,6 @@ const handleTrim = async () => {
   } finally {
     setIsTrimming(false)
   }
-}
-
-
-
-
 
   const handleUpload = async () => {
     if (!videoUrl) return
@@ -140,11 +133,6 @@ const handleTrim = async () => {
     }
   }
 
-
-  
-
-
-
   return (
     <div className="record-page space-y-4">
       <div className="recorder-controls flex gap-3">
@@ -167,7 +155,6 @@ const handleTrim = async () => {
         ) : null}
       </div>
 
-      {/* Minimal status text */}
       <div>
         {isRecording && <div>Recording...</div>}
         {!isRecording && isTrimming && <div>Trimming...</div>}
@@ -176,8 +163,7 @@ const handleTrim = async () => {
 
       {videoUrl && (
         <div className="space-y-2">
-          <div className="video-wrap">
-            {videoUrl && (
+          {videoUrl && (
             <video
               src={videoUrl}
               controls
@@ -187,9 +173,7 @@ const handleTrim = async () => {
                 setEndTime(Math.floor(duration))
               }}
             />
-)}
-
-          </div>
+          )}
 
           <a
             href={videoUrl}
@@ -199,56 +183,50 @@ const handleTrim = async () => {
             Download original recording
           </a>
           {videoUrl && endTime !== null && (
-  <div className="space-y-2">
-    <div className="flex gap-3">
-      <label>
-        Start (sec)
-        <input
-          type="number"
-          min={0}
-          max={endTime - 1}
-          value={startTime}
-          onChange={(e) => setStartTime(Number(e.target.value))}
-          className="border px-2 ml-2 w-20"
-        />
-      </label>
+            <div className="space-y-2">
+              <div className="flex gap-3">
+                <label>
+                  Start (sec)
+                  <input
+                    type="number"
+                    min={0}
+                    max={endTime - 1}
+                    value={startTime}
+                    onChange={(e) => setStartTime(Number(e.target.value))}
+                    className="border px-2 ml-2 w-20"
+                  />
+                </label>
 
-      <label>
-        End (sec)
-        <input
-          type="number"
-          min={startTime + 1}
-          max={endTime}
-          value={endTime}
-          onChange={(e) => setEndTime(Number(e.target.value))}
-          className="border px-2 ml-2 w-20"
-        />
-      </label>
-    </div>
+                <label>
+                  End (sec)
+                  <input
+                    type="number"
+                    min={startTime + 1}
+                    max={endTime}
+                    value={endTime}
+                    onChange={(e) => setEndTime(Number(e.target.value))}
+                    className="border px-2 ml-2 w-20"
+                  />
+                </label>
+              </div>
 
-    <button
-      onClick={handleTrim}
-      disabled={isTrimming}
-      className="px-4 py-2 bg-blue-600 text-white rounded disabled:opacity-50"
-    >
-      {isTrimming ? 'Trimming...' : 'Trim Video'}
-    </button>
+              <button
+                onClick={handleTrim}
+                disabled={isTrimming}
+                className="px-4 py-2 bg-blue-600 text-white rounded disabled:opacity-50"
+              >
+                {isTrimming ? 'Trimming...' : 'Trim Video'}
+              </button>
 
-    <div style={{ marginTop: 8 }}>
-      <button
-        onClick={handleUpload}
-        disabled={isUploading || isTrimming}
-        className="px-4 py-2 bg-green-600 text-white rounded disabled:opacity-50"
-      >
-        {isUploading ? 'Uploading...' : 'Upload & Share'}
-      </button>
-    </div>
-  </div>
-)}
-
-
-
-
+              <button
+                onClick={handleUpload}
+                disabled={isUploading || isTrimming}
+                className="px-4 py-2 bg-green-600 text-white rounded disabled:opacity-50"
+              >
+                {isUploading ? 'Uploading...' : 'Upload & Share'}
+              </button>
+            </div>
+          )}
         </div>
       )}
     </div>

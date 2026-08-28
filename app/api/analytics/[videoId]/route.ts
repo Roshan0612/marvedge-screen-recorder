@@ -15,7 +15,7 @@ async function writeMeta(videoId: string, data: any) {
   await writeFile(metaPath, JSON.stringify(data, null, 2), 'utf8')
 }
 
-export async function GET(_req: Request, { params }: { params: { videoId: string } | Promise<{ videoId: string }> }) {
+export async function GET(req: Request, { params }: { params: { videoId: string } | Promise<{ videoId: string }> }) {
   try {
     const { videoId } = await params
     const meta = await readMeta(videoId)
@@ -70,7 +70,6 @@ export async function POST(req: Request, { params }: { params: { videoId: string
     await writeMeta(videoId, meta)
     return NextResponse.json({ views: meta.views })
   } catch (err) {
-    console.error('Failed to update analytics', err)
     return NextResponse.json({ error: 'Update failed' }, { status: 500 })
   }
 }

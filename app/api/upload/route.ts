@@ -21,7 +21,6 @@ export async function POST(req: NextRequest) {
     const duration = durationRaw != null ? Number(String(durationRaw)) : undefined
     const videoId = randomUUID()
 
-    
     const buffer = Buffer.from(await (file as any).arrayBuffer())
     const s3Key = `recordings/${videoId}.webm`
 
@@ -34,7 +33,6 @@ export async function POST(req: NextRequest) {
       })
     )
 
-    
     const dataDir = path.join(process.cwd(), 'data')
     await mkdir(dataDir, { recursive: true })
 
@@ -54,7 +52,6 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ videoId, shareUrl }, { status: 201 })
   } catch (err) {
-    console.error('Upload failed', err)
     return NextResponse.json({ error: 'Upload failed' }, { status: 500 })
   }
 }
