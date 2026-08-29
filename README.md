@@ -1,50 +1,59 @@
 # Marvedge
 
-Marvedge is a browser-based screen recorder for explaining technical work with a focused, shareable video workflow.
+Marvedge is a browser-based screen recorder built for technical explanations. It lets you capture what is happening on your screen, record your voice, trim out the extra bits, and send a clean shareable link to someone else.
 
-## Features
+It is aimed at product updates, bug reports, walkthroughs, and quick explanations where a short recorded clip is clearer than a long message.
 
-- Capture display video and microphone audio with the browser MediaRecorder API.
-- Preview recordings locally in the browser.
-- Trim clips by choosing start and end timestamps.
-- Re-encode trimmed WebM video with FFmpeg for reliable cuts.
-- Upload recordings to an S3-compatible bucket.
-- Share recordings through generated links and track views on the share page.
+## What it does
 
-## Tech Stack
+- Capture screen and microphone input directly in the browser
+- Preview the recording before saving it
+- Trim the timeline to keep only the important part
+- Re-encode the final clip with FFmpeg for a cleaner result
+- Upload the final video to an S3-compatible storage bucket
+- Generate a share link and count views on the playback page
 
-- Next.js 16 with the App Router
+## Tech stack
+
+- Next.js 16
 - React 19
 - TypeScript
-- Tailwind CSS 4 and PostCSS
-- Browser MediaRecorder and Media Capture APIs
-- AWS SDK for JavaScript v3 and Amazon S3-compatible storage
-- Node.js runtime for filesystem and FFmpeg processing
+- Tailwind CSS
+- Browser MediaRecorder API
+- AWS SDK for S3 uploads and signed playback URLs
+- Node.js for server-side processing and FFmpeg integration
 
-## Screenshots
+## Project structure
 
-Screenshots can be added here as the product evolves.
+```text
+app/
+  api/              Upload, trim, playback, and analytics handlers
+  record/           Recording page
+  share/[videoId]/  Playback page for a shared recording
+  page.tsx          Landing page
+components/
+  Recorder.tsx      Capture, preview, trim, and upload flow
+lib/
+  s3.ts             S3 client setup and signed URL helper
+data/               Metadata for uploaded recordings
+tmp/                Temporary files used during trimming
+uploads/            Local app upload workspace
+```
 
-## Getting Started
+## Local setup
 
-### Prerequisites
-
-- Node.js 18 or later
-- FFmpeg installed and available on `PATH` for trimming
-- An S3-compatible bucket and credentials for upload and playback
-
-### Install and run
+This project expects Node.js, FFmpeg, and S3 credentials to be available locally.
 
 ```bash
 npm install
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) in a browser that supports screen capture. Use `npm run build` to create a production build and `npm start` to serve it.
+Then open the app in the browser and start recording from the recorder page.
 
-## Environment Variables
+## Environment variables
 
-Create a `.env.local` file with the storage configuration used by the API routes:
+Create a `.env.local` file in the project root with values like:
 
 ```bash
 AWS_REGION=
@@ -54,41 +63,18 @@ AWS_S3_BUCKET_NAME=
 FFMPEG_PATH=ffmpeg
 ```
 
-Do not commit real credentials. `FFMPEG_PATH` is optional when `ffmpeg` is already on `PATH`; it can point to an absolute executable path when needed.
+`FFMPEG_PATH` is optional if `ffmpeg` is already installed and available on your machine.
 
-## Project Structure
+## How the flow works
 
-```text
-app/
-  api/              Upload, trim, playback, and analytics route handlers
-  record/           Recording page
-  share/[videoId]/  Shared recording playback and view count
-  page.tsx          Home page
-components/
-  Recorder.tsx      Browser capture, preview, trim, and upload UI
-lib/
-  s3.ts             S3 client and signed URL helper
-data/               Recording metadata stored by the application
-uploads/            Local application upload workspace
-tmp/                Temporary files used during FFmpeg processing
-```
+The recorder page asks for screen and microphone access, combines the tracks, and stores the result as a WebM recording in the browser. Once the clip is ready, it can be trimmed by selecting a start and end time. The trimmed output is processed through FFmpeg and then uploaded to S3. The app returns a share URL, and the playback page loads the clip while tracking view counts.
 
-## How It Works
+## Screenshots
 
-The recording page requests display video and microphone access, combines their tracks, and records them as WebM in the browser. A recorded clip can be previewed and sent to `/api/trim`, where FFmpeg processes the requested time range. The resulting file is uploaded to S3 through `/api/upload`, which returns a `/share/[videoId]` route. The share page loads the video through a signed URL or server proxy and records playback views through the analytics route.
+Screenshots will be added here as the product continues to evolve.
 
-## Development
+## Notes
 
-Run `npm run dev` while working locally. Use `npm run lint` for ESLint checks and `npm run build` to validate the production bundle. Browser permissions must be granted for screen and microphone capture, and FFmpeg must be available to test trimming.
+This is a focused app for making technical explanations easier to share. The goal is simple: capture the moment, keep only what matters, and send a clean link without extra friction.
 
-## Deployment
 
-Deploy the Next.js application to a Node.js-compatible host. Configure the AWS variables in the host environment, provide FFmpeg in the runtime image or set `FFMPEG_PATH`, and ensure the process can write to the temporary and upload directories. Use an S3 bucket policy and credentials appropriate for the deployment environment.
-
-## Contributing
-
-Keep changes focused, preserve the existing recording and API contracts, and verify lint and build checks before opening a pull request. Describe user-visible changes and include screenshots for UI updates.
-
-## License
-
-No license file is currently included in this repository.
