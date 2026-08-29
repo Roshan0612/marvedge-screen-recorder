@@ -15,6 +15,7 @@ export default function Recorder() {
   const [endTime, setEndTime] = useState<number | null>(null)
   const [isTrimming, setIsTrimming] = useState(false)
   const [isUploading, setIsUploading] = useState(false)
+  const [shareUrl, setShareUrl] = useState<string | null>(null)
   const router = useRouter()
 
   const startRecording = async () => {
@@ -73,33 +74,34 @@ export default function Recorder() {
   }
 
   const handleTrim = async () => {
-  if (!videoUrl || endTime === null) return
+    if (!videoUrl || endTime === null) return
 
-  setIsTrimming(true)
+    setIsTrimming(true)
 
-  try {
-    const blob = await fetch(videoUrl).then((res) => res.blob())
+    try {
+      const blob = await fetch(videoUrl).then((res) => res.blob())
 
-    const formData = new FormData()
-    formData.append('file', blob, 'recording.webm')
-    formData.append('start', String(startTime))
-    formData.append('end', String(endTime))
+      const formData = new FormData()
+      formData.append('file', blob, 'recording.webm')
+      formData.append('start', String(startTime))
+      formData.append('end', String(endTime))
 
-    const res = await fetch('/api/trim', {
-      method: 'POST',
-      body: formData,
-    })
+      const res = await fetch('/api/trim', {
+        method: 'POST',
+        body: formData,
+      })
 
-    if (!res.ok) {
-      console.error('Trim failed')
-      return
+      if (!res.ok) {
+        console.error('Trim failed')
+        return
+      }
+
+      const trimmedBlob = await res.blob()
+      const trimmedUrl = URL.createObjectURL(trimmedBlob)
+      setVideoUrl(trimmedUrl)
+    } finally {
+      setIsTrimming(false)
     }
-
-    const trimmedBlob = await res.blob()
-    const trimmedUrl = URL.createObjectURL(trimmedBlob)
-    setVideoUrl(trimmedUrl)
-  } finally {
-    setIsTrimming(false)
   }
 
   const handleUpload = async () => {
@@ -163,17 +165,15 @@ export default function Recorder() {
 
       {videoUrl && (
         <div className="space-y-2">
-          {videoUrl && (
-            <video
-              src={videoUrl}
-              controls
-              className={`rounded border ${isRecording ? 'live-preview' : ''}`}
-              onLoadedMetadata={(e) => {
-                const duration = e.currentTarget.duration
-                setEndTime(Math.floor(duration))
-              }}
-            />
-          )}
+          <video
+            src={videoUrl}
+            controls
+            className={`rounded border ${isRecording ? 'live-preview' : ''}`}
+            onLoadedMetadata={(e) => {
+              const duration = e.currentTarget.duration
+              setEndTime(Math.floor(duration))
+            }}
+          />
 
           <a
             href={videoUrl}
@@ -182,6 +182,7 @@ export default function Recorder() {
           >
             Download original recording
           </a>
+
           {videoUrl && endTime !== null && (
             <div className="space-y-2">
               <div className="flex gap-3">
